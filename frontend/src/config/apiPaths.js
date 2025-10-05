@@ -1,6 +1,7 @@
 
 // BASE URL for frontend requests
-export const BASE_URL = "http://localhost:5000";
+// export const BASE_URL = "http://localhost:5000";
+export const BASE_URL="https://resolve-x-help-desk.onrender.com"
 
 export const API_PATHS = {
   AUTH: {
