@@ -1,8 +1,4 @@
-Here’s a clean, professional, and visually engaging **README.md** file with emojis, tech stack badges, setup instructions, and links — perfect for your **ResolveX Help Desk** project 👇
 
----
-
-````md
 # 🧩 ResolveX Help Desk
 
 A modern Help Desk web application for managing customer support tickets efficiently.  
@@ -103,14 +99,20 @@ ResolveX-HelpDesk/
 
 ---
 
+
 ## 🏁 Features
 
-✅ User Authentication (JWT)
-✅ Role-based Access (User / Agent / Admin)
-✅ Ticket Management (Create, Update, Track)
-✅ SLA Handling (24-hour deadline)
-✅ Modern UI with Context API
-✅ Secure API endpoints with Authorization
+- ✅ **User Authentication (JWT)** — Secure login using JSON Web Tokens with cookie support.
+- ✅ **Role-based Access** — Role-based middleware for `user`, `agent`, and `admin`.
+- ✅ **Ticket Management** — Create, edit (optimistic locking), comment (threaded), and delete (only if `open`).
+- ✅ **SLA Handling (24-hour)** — Each ticket has an SLA deadline; `slaStatus` and `slaTimeRemaining` are exposed.
+- ✅ **Searchable Timeline** — Timeline logs actions and is searchable (title, description, latest comment).
+- ✅ **Pagination & `next_offset`** — All lists support `?limit=&offset=` and return `{ items, next_offset }`.
+- ✅ **Idempotency for POSTs** — `Idempotency-Key` header supported to prevent duplicate creates.
+- ✅ **Rate Limiting** — 60 requests/min per user; exceeds → `429 { "error": { "code": "RATE_LIMIT" } }`.
+- ✅ **Frontend** — React + Context API + Tailwind CSS.
+- ✅ **Backend** — Node.js, Express, MongoDB (Mongoose).
+
 
 ---
 
