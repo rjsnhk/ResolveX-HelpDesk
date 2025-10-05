@@ -1,68 +1,117 @@
-// Import core modules and packages
-const express = require("express");
-const mongoose = require("mongoose");
-const cors = require("cors");
-require("dotenv").config();
-const os = require("os");
-const cluster = require("cluster");
-const cookieParser = require("cookie-parser");
+// ===============================
+// HelpDesk Mini API - Server
+// ===============================
 
-// Import database connection
+const express = require("express");
+const cors = require("cors");
+const cookieParser = require("cookie-parser");
+const rateLimit = require("express-rate-limit");
+const { ipKeyGenerator } = require("express-rate-limit");
+require("dotenv").config();
+
 const connectDatabase = require("./config/db");
 
-// Import route files
+// Routes
+const userRoutes = require("./routes/userRoutes");
+const adminRoutes = require("./routes/adminRoutes");
+const agentRoutes = require("./routes/agentRoutes");
+const authRoutes = require("./routes/authRoutes");
 
-// Create Express app instance
+// Environment setup
 const app = express();
-
-// Define port from .env or fallback
 const PORT = process.env.PORT || 5000;
 
-// Get available CPU cores
-const numCPUs = os.cpus().length;
+// ===============================
+// Database Connection
+// ===============================
+connectDatabase();
 
-// Master process setup
-if (cluster.isPrimary) {
-  console.log(`🧠 Master process ${process.pid} is running`);
+// ===============================
+// Middleware Setup
+// ===============================
+app.use(
+  cors({
+    origin: true,
+    credentials: true,
+  })
+);
 
-  // Fork worker processes
-  for (let i = 0; i < numCPUs; i++) {
-    cluster.fork();
-  }
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
 
-  // Restart crashed workers (limited retries)
-  let restartCount = 0;
-  const MAX_RESTARTS = 5;
+// ===============================
+// Rate Limiting (60 req/min/user)
+// ===============================
+const limiter = rateLimit({
+  windowMs: 60 * 1000, // 1 minute
+  limit: 60,
+  keyGenerator: ipKeyGenerator, // ✅ safe IPv4 + IPv6 handling
+  message: {
+    error: {
+      code: "RATE_LIMIT",
+      message: "Too many requests, please try again later."
+    },
+  },
+});
+app.use(limiter);
 
-  cluster.on("exit", (worker, code, signal) => {
-    console.log(`⚠️ Worker ${worker.process.pid} exited`);
-    if (restartCount < MAX_RESTARTS) {
-      console.log(`🔁 Restarting worker...`);
-      cluster.fork();
-      restartCount++;
-    } else {
-      console.log(`⛔ Max restart limit reached. Not forking more workers.`);
+// ===============================
+// Idempotency Middleware
+// ===============================
+// (Prevents duplicate POST operations)
+const idempotencyKeys = new Map(); // store keys in memory for simplicity
+
+app.use((req, res, next) => {
+  if (req.method === "POST" && req.headers["idempotency-key"]) {
+    const key = req.headers["idempotency-key"];
+    if (idempotencyKeys.has(key)) {
+      const response = idempotencyKeys.get(key);
+      return res.status(200).json(response);
     }
+
+    // Hook into res.json to store result
+    const originalJson = res.json.bind(res);
+    res.json = (body) => {
+      idempotencyKeys.set(key, body);
+      return originalJson(body);
+    };
+  }
+  next();
+});
+
+// ===============================
+// Routes
+// ===============================
+app.use("/api/auth", authRoutes);
+app.use("/api/users", userRoutes);
+app.use("/api/admin", adminRoutes);
+app.use("/api/agents", agentRoutes);
+
+// ===============================
+// Health Check
+// ===============================
+app.get("/", (req, res) => {
+  res.send("<h1>🎫 HelpDesk Mini API is Running...</h1>");
+});
+
+// ===============================
+// Error Handling (Uniform Format)
+// ===============================
+app.use((err, req, res, next) => {
+  console.error("Error:", err);
+  res.status(err.status || 500).json({
+    error: {
+      code: err.code || "INTERNAL_ERROR",
+      field: err.field || null,
+      message: err.message || "Internal server error",
+    },
   });
-} else {
-  // Worker process logic
-  connectDatabase(); // Connect MongoDB
+});
 
-  // Middleware setup
-  app.use(cors());
-  app.use(express.json());
-  app.use(express.urlencoded({ extended: true }));
-  app.use(cookieParser());
-
-  // Mount route handlers
-
-  // Health check route
-  app.get("/", (req, res) => {
-    res.send("<h1>🎫 HelpDesk Mini API is Running...</h1>");
-  });
-
-  // Start server
-  app.listen(PORT, () => {
-    console.log(`🚀 Worker ${process.pid} running on http://localhost:${PORT}`);
-  });
-}
+// ===============================
+// Start Server
+// ===============================
+app.listen(PORT, () => {
+  console.log(`🚀 Server running on http://localhost:${PORT}`);
+});
