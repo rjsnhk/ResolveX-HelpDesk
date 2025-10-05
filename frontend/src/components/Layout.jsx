@@ -1,6 +1,7 @@
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useState } from 'react';
+import Footer from './Footer';
 
 const Layout = ({ children }) => {
   const { user, logout } = useAuth();
@@ -50,10 +51,10 @@ const Layout = ({ children }) => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <nav className="bg-white shadow-sm border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <nav className="bg-white shadow-sm border-b border-gray-200 w-full">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
           <div className="flex justify-between h-16">
-            <div className="flex">
+            <div className="flex items-center">
               <div className="flex-shrink-0 flex items-center">
                 <div className="h-10 w-10 bg-gradient-to-br from-blue-600 to-blue-700 rounded-xl flex items-center justify-center shadow-md">
                   <svg className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -63,12 +64,12 @@ const Layout = ({ children }) => {
                 <span className="ml-3 text-xl font-bold text-gray-900 hidden sm:block">Resolve X</span>
               </div>
 
-              <div className="hidden sm:ml-8 sm:flex sm:space-x-4">
+              <div className="hidden sm:flex sm:items-center sm:ml-10">
                 {navLinks.map((link) => (
                   <Link
                     key={link.path}
                     to={link.path}
-                    className={`inline-flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
+                    className={`inline-flex items-center px-4 py-2 mx-1 text-sm font-medium rounded-lg transition-colors ${
                       isActive(link.path)
                         ? 'text-blue-700 bg-blue-50'
                         : 'text-gray-700 hover:text-blue-700 hover:bg-gray-50'
@@ -80,8 +81,8 @@ const Layout = ({ children }) => {
               </div>
             </div>
 
-            <div className="hidden sm:flex sm:items-center sm:space-x-4">
-              <div className="flex items-center space-x-3">
+            <div className="hidden sm:flex sm:items-center">
+              <div className="flex items-center space-x-4 mr-4">
                 <div className="text-right">
                   <p className="text-sm font-medium text-gray-900">{user?.name}</p>
                   <p className="text-xs text-gray-500 capitalize">{user?.role}</p>
@@ -165,6 +166,8 @@ const Layout = ({ children }) => {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {children}
       </main>
+
+      <Footer />
     </div>
   );
 };

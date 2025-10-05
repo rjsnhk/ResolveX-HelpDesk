@@ -263,9 +263,11 @@ const TicketDetail = () => {
               )}
             </div>
             <div className="flex flex-col gap-2">
-              <span className={`px-4 py-2 text-sm font-medium rounded-xl border text-center ${getStatusColor(ticket.status)}`}>
-                {ticket.status.replace('_', ' ').toUpperCase()}
-              </span>
+              <div className="inline-flex justify-center">
+                <span className={`px-4 py-2 text-sm font-medium rounded-xl border text-center ${getStatusColor(ticket.status)}`}>
+                  {ticket.status.replace('_', ' ').toUpperCase()}
+                </span>
+              </div>
               {user.role === 'user' && ticket.status === 'open' && !editMode && (
                 <>
                   <button onClick={() => setEditMode(true)} className="px-4 py-2 text-sm border border-blue-300 text-blue-700 rounded-lg hover:bg-blue-50">

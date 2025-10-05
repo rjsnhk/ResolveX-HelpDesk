@@ -110,9 +110,11 @@ const AgentDashboard = () => {
                         <p className="text-sm font-semibold text-gray-900 truncate">{ticket.title}</p>
                         <p className="text-xs text-gray-500 mt-1">By: {ticket.createdBy?.name}</p>
                       </div>
-                      <span className={`px-2 py-1 text-xs font-medium rounded-lg ${getStatusColor(ticket.status)}`}>
-                        {ticket.status.replace('_', ' ')}
-                      </span>
+                      <div className="inline-flex">
+                        <span className={`px-2 py-1 text-xs font-medium rounded-lg ${getStatusColor(ticket.status)}`}>
+                          {ticket.status.replace('_', ' ')}
+                        </span>
+                      </div>
                     </div>
                     <p className="text-xs text-gray-400 mt-2">{formatDate(ticket.updatedAt)}</p>
                   </Link>
@@ -138,9 +140,11 @@ const AgentDashboard = () => {
                         <p className="text-sm font-semibold text-gray-900 truncate">{ticket.title}</p>
                         <p className="text-xs text-gray-500 mt-1">By: {ticket.createdBy?.name}</p>
                       </div>
-                      <span className="px-2 py-1 text-xs font-medium rounded-lg bg-red-100 text-red-800">
-                        Breached
-                      </span>
+                      <div className="inline-flex">
+                        <span className="px-2 py-1 text-xs font-medium rounded-lg bg-red-100 text-red-800">
+                          Breached
+                        </span>
+                      </div>
                     </div>
                     <p className="text-xs text-red-600 mt-2">SLA: {formatDate(ticket.slaDeadline)}</p>
                   </Link>

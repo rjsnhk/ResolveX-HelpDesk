@@ -117,9 +117,11 @@ const AdminDashboard = () => {
                         {ticket.assignedTo?.name || 'Unassigned'}
                       </td>
                       <td className="px-4 py-4">
-                        <span className={`px-2 py-1 text-xs font-medium rounded-lg ${getStatusColor(ticket.status)}`}>
-                          {ticket.status.replace('_', ' ')}
-                        </span>
+                        <div className="inline-flex">
+                          <span className={`px-2 py-1 text-xs font-medium rounded-lg ${getStatusColor(ticket.status)}`}>
+                            {ticket.status.replace('_', ' ')}
+                          </span>
+                        </div>
                       </td>
                       <td className="px-4 py-4 text-sm text-gray-500 hidden lg:table-cell">{formatDate(ticket.createdAt)}</td>
                     </tr>

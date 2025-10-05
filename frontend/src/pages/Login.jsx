@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import Footer from '../components/Footer';
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -29,8 +30,9 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-slate-100 flex items-center justify-center px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-slate-100 flex flex-col justify-between px-4 sm:px-6 lg:px-8">
+      <div className="flex-1 flex items-center justify-center py-12">
+        <div className="max-w-md w-full space-y-8">
         <div className="text-center">
           <div className="mx-auto h-16 w-16 bg-gradient-to-br from-blue-600 to-blue-700 rounded-2xl flex items-center justify-center shadow-lg shadow-blue-500/30">
             <svg className="h-10 w-10 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -124,7 +126,9 @@ const Login = () => {
         <p className="text-center text-xs text-gray-500">
           By signing in, you agree to our Terms of Service and Privacy Policy
         </p>
+        </div>
       </div>
+      <Footer />
     </div>
   );
 };

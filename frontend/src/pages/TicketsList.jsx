@@ -222,14 +222,16 @@ const TicketsList = () => {
                         </div>
                       </div>
                     </div>
-                    <div className="flex sm:flex-col items-start gap-2">
-                      <span className={`px-3 py-1 text-xs font-medium rounded-lg border ${getStatusColor(ticket.status)}`}>
-                        {ticket.status.replace('_', ' ').toUpperCase()}
-                      </span>
+                    <div className="flex sm:flex-col items-center sm:items-end gap-2">
+                      <div className="inline-flex">
+                        <span className={`px-3 py-1 text-xs font-medium rounded-lg border ${getStatusColor(ticket.status)}`}>
+                          {ticket.status.replace('_', ' ').toUpperCase()}
+                        </span>
+                      </div>
                       {user.role === 'user' && ticket.status === 'open' && (
                         <button
                           onClick={() => handleDelete(ticket._id)}
-                          className="text-xs text-red-600 hover:text-red-800 font-medium"
+                          className="px-3 py-1.5 text-xs border border-red-300 text-red-700 rounded-lg hover:bg-red-50 transition-colors font-medium"
                         >
                           Delete
                         </button>
