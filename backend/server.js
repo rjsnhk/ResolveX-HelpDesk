@@ -8,6 +8,7 @@ const cookieParser = require("cookie-parser");
 const rateLimit = require("express-rate-limit");
 const { ipKeyGenerator } = require("express-rate-limit");
 require("dotenv").config();
+const Ticket = require('./models/ticketModel');
 
 const connectDatabase = require("./config/db");
 
@@ -110,8 +111,41 @@ app.use((err, req, res, next) => {
 });
 
 // ===============================
+// Background Job: Auto-close resolved tickets past SLA
+// ===============================
+const startAutoCloseJob = () => {
+  const JOB_INTERVAL_MS = 5 * 60 * 1000; // every 5 minutes
+
+  setInterval(async () => {
+    try {
+      const now = new Date();
+      const result = await Ticket.updateMany(
+        { status: 'resolved', slaDeadline: { $lt: now } },
+        {
+          $set: { status: 'closed' },
+          $inc: { version: 1 },
+          $push: {
+            timeline: {
+              action: 'status_change',
+              user: null,
+              details: 'Auto-closed after SLA expiry'
+            }
+          }
+        }
+      );
+      if (result.modifiedCount) {
+        console.log(`Auto-closed ${result.modifiedCount} tickets past SLA.`);
+      }
+    } catch (jobErr) {
+      console.error('Auto-close job failed:', jobErr.message);
+    }
+  }, JOB_INTERVAL_MS);
+};
+
+// ===============================
 // Start Server
 // ===============================
 app.listen(PORT, () => {
   console.log(`🚀 Server running on http://localhost:${PORT}`);
+  startAutoCloseJob();
 });

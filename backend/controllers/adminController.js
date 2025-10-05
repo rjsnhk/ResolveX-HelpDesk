@@ -83,36 +83,7 @@ const registerAdmin = async (req, res) => {
 };
 
 
-// 1️⃣ Get all tickets (with filters & pagination)
-const getAllTicketsAdmin = async (req, res) => {
-  try {
-    const { status, agent, limit = 10, offset = 0 } = req.query;
-    const query = {};
 
-    if (status) query.status = status;
-    if (agent) query.assignedTo = agent;
-
-    const total = await Ticket.countDocuments(query);
-    const tickets = await Ticket.find(query)
-      .populate('createdBy', 'name email role')
-      .populate('assignedTo', 'name email role')
-      .sort({ updatedAt: -1 })
-      .skip(parseInt(offset))
-      .limit(parseInt(limit));
-
-    res.status(200).json({
-      success: true,
-      total,
-      count: tickets.length,
-      tickets
-    });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: error.message
-    });
-  }
-};
 
 // 2️⃣ Assign / reassign ticket to an agent
 const assignTicketToAgent = async (req, res) => {
@@ -340,7 +311,6 @@ const deleteAgent = async (req, res) => {
 
 module.exports = {
   registerAdmin,
-  getAllTicketsAdmin,
   assignTicketToAgent,
   getDashboard,
   addAgent,

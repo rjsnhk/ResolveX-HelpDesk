@@ -5,7 +5,6 @@ const {
 } = require('../middleware/auth');
 
 const {
-  getAllTicketsAdmin,
   assignTicketToAgent,
   getDashboard,
   addAgent,
@@ -16,7 +15,7 @@ const {
   registerAdmin
 } = require('../controllers/adminController');
 
-const { getTicketById, addComment,updateTicketStatus } = require('../controllers/ticketController');
+const { getTicketById, addComment,updateTicketStatus, getAllTickets } = require('../controllers/ticketController');
 
 const adminRouter = express.Router();
 
@@ -24,7 +23,7 @@ adminRouter.post("/register", registerAdmin);
 
 // 1️⃣ Get all tickets (with filters & pagination)
 // GET /api/admin/tickets?status=open&agent=123&limit=10&offset=0
-adminRouter.get('/tickets', verifyToken, authorize(['admin']), getAllTicketsAdmin);
+adminRouter.get('/tickets', verifyToken, authorize(['admin']), getAllTickets);
 
 
 

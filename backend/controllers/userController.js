@@ -1,53 +1,7 @@
 const Ticket = require("../models/ticketModel");
 const User = require("../models/userModel");
 
-const getAllTickets = async (req, res) => {
-  try {
-    const userId = req.user._id; // current logged-in user
-    const { status, limit = 10, offset = 0, search } = req.query;
 
-    const filter = { createdBy: userId };
-
-    // Filter by status if provided
-    if (status) filter.status = status;
-
-    // Search across title, description, and latest comment
-    if (search) {
-      filter.$or = [
-        { title: { $regex: search, $options: 'i' } },
-        { description: { $regex: search, $options: 'i' } },
-        { 'timeline.details': { $regex: search, $options: 'i' } },
-      ];
-    }
-
-    // 1️⃣ Total tickets for this user
-    const totalTickets = await Ticket.countDocuments(filter);
-
-    // 2️⃣ Count by status
-    const statusCounts = await Ticket.aggregate([
-      { $match: { createdBy: userId } },
-      { $group: { _id: "$status", count: { $sum: 1 } } }
-    ]);
-
-    // 3️⃣ Paginated tickets
-    const tickets = await Ticket.find(filter)
-      .sort({ createdAt: -1 })
-      .skip(Number(offset))
-      .limit(Number(limit))
-      .populate('assignedTo', 'name email');
-
-    res.status(200).json({
-      success: true,
-      totalTickets,
-      statusCounts,
-      limit: Number(limit),
-      offset: Number(offset),
-      data: tickets
-    });
-  } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
-  }
-};
 
 const updateTicket = async (req, res) => {
   try {
@@ -185,7 +139,6 @@ const getDashboard = async (req, res) => {
 };
 
 module.exports = {
-  getAllTickets,
   updateTicket,
   deleteTicket,
   getDashboard

@@ -1,4 +1,5 @@
 const Ticket = require('../models/ticketModel');
+const mongoose = require('mongoose');
 const getDashboard = async (req, res) => {
   try {
     const agentId = req.user.id; // from verifyToken middleware
@@ -6,9 +7,9 @@ const getDashboard = async (req, res) => {
     // 1️⃣ Total tickets assigned to this agent
     const totalTickets = await Ticket.countDocuments({ assignedTo: agentId });
 
-    // 2️⃣ Count tickets by status
+    // 2️⃣ Count tickets by status (ensure ObjectId match inside aggregation)
     const statusCounts = await Ticket.aggregate([
-      { $match: { assignedTo: agentId } },
+      { $match: { assignedTo: new mongoose.Types.ObjectId(agentId) } },
       { $group: { _id: "$status", count: { $sum: 1 } } }
     ]);
 
@@ -16,7 +17,8 @@ const getDashboard = async (req, res) => {
     const now = new Date();
     const slaActive = await Ticket.countDocuments({
       assignedTo: agentId,
-      slaDeadline: { $gte: now }
+      slaDeadline: { $gte: now },
+      status: { $ne: 'closed' }
     });
     const slaBreached = await Ticket.countDocuments({
       assignedTo: agentId,

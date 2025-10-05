@@ -77,7 +77,7 @@ const canModifyTicket = async (req, res, next) => {
     // 🧰 Agent can modify tickets assigned to them or unassigned ones
     if (
       user.role === 'agent' &&
-      (!ticket.assignedTo || ticket.assignedTo.toString() === user._id.toString())
+      (!ticket.assignedTo || ticket.assignedTo.toString() === user.id.toString())
     ) {
       return next();
     }
@@ -88,7 +88,7 @@ const canModifyTicket = async (req, res, next) => {
     // - The status is 'open' or 'in_progress'
     if (
       user.role === 'user' &&
-      ticket.createdBy.toString() === user._id.toString() &&
+      ticket.createdBy.toString() === user.id.toString() &&
       !ticket.assignedTo &&
       (ticket.status === 'open' || ticket.status === 'in_progress')
     ) {

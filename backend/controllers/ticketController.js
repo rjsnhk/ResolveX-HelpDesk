@@ -55,7 +55,6 @@ const createTicket = async (req, res) => {
 };
 
 // ✅ Get all tickets (GET /api/tickets?limit=&offset=&search=)
-
 const getAllTickets = async (req, res) => {
   try {
     const { search, status, limit = 10, offset = 0 } = req.query;
@@ -66,7 +65,8 @@ const getAllTickets = async (req, res) => {
 
     // Role-based access
     if (role === 'user') filter.createdBy = userId;
-    if (role === 'agent') filter.assignedTo = userId;
+    else if (role === 'agent') filter.assignedTo = userId;
+    // Admins see all tickets
 
     // Search: title, description, timeline.details, latest comment
     if (search) {
@@ -94,14 +94,15 @@ const getAllTickets = async (req, res) => {
     const total = await Ticket.countDocuments(filter);
 
     res.json({
-      items: tickets,
-      next_offset: Number(offset) + tickets.length,
-      total
+      items: tickets,        // Array of tickets
+      total,                 // Total tickets count
+      next_offset: Number(offset) + tickets.length
     });
   } catch (err) {
     res.status(500).json({ error: { code: 'SERVER_ERROR', message: err.message } });
   }
 };
+
 
 // ✅ Get Ticket by ID (GET /api/tickets/:id)
 const getTicketById = async (req, res) => {
@@ -215,6 +216,16 @@ const updateTicketStatus = async (req, res) => {
     const validStatuses = ['open', 'in_progress', 'resolved', 'closed'];
     if (!validStatuses.includes(status)) {
       return res.status(400).json(errorResponse('status', 'Invalid status'));
+    }
+
+    // Prevent updates to already closed tickets
+    const existing = await Ticket.findById(id).select('status version');
+    if (!existing) {
+      return res.status(404).json({ error: { code: 'NOT_FOUND', message: 'Ticket not found' } });
+    }
+
+    if (existing.status === 'closed') {
+      return res.status(400).json({ error: { code: 'IMMUTABLE_CLOSED', message: 'Closed tickets cannot be modified' } });
     }
 
     const ticket = await Ticket.findOneAndUpdate(

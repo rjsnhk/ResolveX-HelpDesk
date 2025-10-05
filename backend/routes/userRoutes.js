@@ -3,10 +3,10 @@ const {
   createTicket,
   getTicketById,
   addComment,
+  getAllTickets
 } = require("../controllers/ticketController");
 
 const {
-  getAllTickets,
   updateTicket,
   deleteTicket,
   getDashboard
