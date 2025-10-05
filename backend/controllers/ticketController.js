@@ -1,7 +1,5 @@
 const Ticket = require('../models/ticketModel');
 const Comment = require('../models/commentModel');
-const User = require('../models/userModel');
-const crypto = require('crypto');
 
 // ✅ Utility: uniform error formatter
 const errorResponse = (field, message, code = 'FIELD_REQUIRED') => ({

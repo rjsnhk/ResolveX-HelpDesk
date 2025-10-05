@@ -1,3 +1,4 @@
+const Ticket = require('../models/ticketModel');
 const getDashboard = async (req, res) => {
   try {
     const agentId = req.user.id; // from verifyToken middleware
